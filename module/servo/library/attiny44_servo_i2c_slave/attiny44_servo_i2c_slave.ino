@@ -7,6 +7,8 @@
 
 char incomingByte;   // for incoming serial data
 
+int pwm;
+
 void setup()
 {
   TCCR0A = (1 << COM0B1) | (0 << COM0B0) | (0 << WGM01) | (1 << WGM00); // clear OC0B on compare match
@@ -30,23 +32,24 @@ void loop()
    * It will call the function registered via TinyWireS.onReceive(); if there is data in the buffer on stop.
    */
   TinyWireS_stop_check();
-  
+
   incomingByte = TinyWireS.receive();
+
+  pwm = map(incomingByte, 0, 180, 5, 24);
   
-  if (incomingByte == '1') {
-    // 1 ms PWM on time
-    //
-    OCR0B = 0x05;
-    position_delay();
-    //
-    // 2 ms PWM on time
-    //
-    OCR0B = 0x18;
-    position_delay();
-    //
-    // 1.5 ms PWM on time
-    //
-    OCR0B = 0x0F;
-    position_delay();
-  }
+  OCR0B = pwm;
+  position_delay();
+
+
+//    //
+//    // 2 ms PWM on time
+//    //
+//    OCR0B = 0x18;
+//    position_delay();
+//    //
+//    // 1.5 ms PWM on time
+//    //
+//    OCR0B = 0x0F;
+//    position_delay();
+ 
 }
