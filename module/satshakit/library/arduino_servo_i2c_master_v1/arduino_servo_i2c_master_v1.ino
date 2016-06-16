@@ -14,7 +14,7 @@
 String inputString = "";
 
 int indexServo;
-int angle;
+uint8_t angle;
 
 boolean stringComplete = false;  // whether the string is complete
 
@@ -43,13 +43,13 @@ void loop() {
   }
 }
 
-void sendToServo(int index, int angle) {
+void sendToServo(int index, uint8_t angle) {
   Wire.beginTransmission(index); // transmit to device #2
   Wire.write(angle);  // sends one byte
+  Wire.endTransmission();  // stop transmitting
   Serial.print("turning to ");
   Serial.print(angle);
-  Serial.print("\n");
-  Wire.endTransmission();    // stop transmitting
+  Serial.print("\n");      
 }
 
 

@@ -5,9 +5,27 @@
 
 #define position_delay() _delay_ms(1000)
 
-char incomingByte;   // for incoming serial data
+uint8_t incomingByte;   // for incoming serial data
 
-int pwm;
+uint8_t pwm;
+
+void receiveEvent(uint8_t howMany)
+{
+    if (howMany < 1)
+    {
+        // Sanity-check
+        return;
+    }
+    if (howMany >= 2)
+    {
+        // Also insane number
+        return;
+    }
+
+    incomingByte = TinyWireS.receive();
+
+    pwm = map(incomingByte, 0, 180, 5, 24);
+}
 
 void setup()
 {
@@ -22,6 +40,7 @@ void setup()
   DDRA |= (1 << PA7);
   
   TinyWireS.begin(I2C_SLAVE_ADDRESS);
+  TinyWireS.onReceive(receiveEvent);
 }
 
 void loop()
@@ -32,24 +51,8 @@ void loop()
    * It will call the function registered via TinyWireS.onReceive(); if there is data in the buffer on stop.
    */
   TinyWireS_stop_check();
-
-  incomingByte = TinyWireS.receive();
-
-  pwm = map(incomingByte, 0, 180, 5, 24);
   
   OCR0B = pwm;
   position_delay();
-
-
-//    //
-//    // 2 ms PWM on time
-//    //
-//    OCR0B = 0x18;
-//    position_delay();
-//    //
-//    // 1.5 ms PWM on time
-//    //
-//    OCR0B = 0x0F;
-//    position_delay();
  
 }
