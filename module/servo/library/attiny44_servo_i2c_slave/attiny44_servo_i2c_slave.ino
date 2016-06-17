@@ -3,8 +3,6 @@
 
 #define I2C_SLAVE_ADDRESS 0x01 // the 7-bit address (remember to change this when adapting this example)
 
-#define position_delay() _delay_ms(1000)
-
 uint8_t incomingByte;   // for incoming serial data
 
 uint8_t pwm;
@@ -53,6 +51,4 @@ void loop()
   TinyWireS_stop_check();
   
   OCR0B = pwm;
-  position_delay();
- 
 }
