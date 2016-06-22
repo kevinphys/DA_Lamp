@@ -25,7 +25,6 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -40,7 +39,6 @@ import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2HSV;
-import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
 import static org.opencv.imgproc.Imgproc.CV_HOUGH_GRADIENT;
 
 public class MainActivity extends Activity implements CvCameraViewListener{
@@ -142,10 +140,10 @@ public class MainActivity extends Activity implements CvCameraViewListener{
         Core.inRange(hsvImage, new Scalar(0, 100, 100), new Scalar(10, 255, 255), lowerBlueRange);
         Core.inRange(hsvImage, new Scalar(160, 100, 100), new Scalar(179, 255, 255), upperBlueRange);
 
-        Mat redImage = new Mat(hsvImage.rows(), hsvImage.cols(),
+        Mat blueImage = new Mat(hsvImage.rows(), hsvImage.cols(),
                 CvType.CV_8UC1);
 
-        Core.addWeighted(lowerBlueRange, 1.0, upperBlueRange, 1.0, 0.0, redImage);
+        Core.addWeighted(lowerBlueRange, 1.0, upperBlueRange, 1.0, 0.0, blueImage);
 
 //        /* convert to grayscale */
 //        int colorChannels = (inputFrame.channels() == 3) ? Imgproc.COLOR_BGR2GRAY
@@ -154,7 +152,7 @@ public class MainActivity extends Activity implements CvCameraViewListener{
 //        Imgproc.cvtColor(inputFrame, grayMat, colorChannels);
 
         /* reduce the noise so we avoid false circle detection */
-        Imgproc.GaussianBlur(redImage, redImage, new Size(9, 9), 2, 2);
+        Imgproc.GaussianBlur(blueImage, blueImage, new Size(9, 9), 2, 2);
 
         // accumulator value
         double dp = 1.2d;
@@ -162,7 +160,7 @@ public class MainActivity extends Activity implements CvCameraViewListener{
         double minDist = 100;
 
         // min and max radii (set these values as you desire)
-        int minRadius = 30, maxRadius = 250;
+        int minRadius = 15, maxRadius = 250;
 
         // param1 = gradient value used to handle edge detection
         // param2 = Accumulator threshold value for the
@@ -178,7 +176,7 @@ public class MainActivity extends Activity implements CvCameraViewListener{
                 inputFrame.cols(), CvType.CV_8UC1);
 
         /* find the circle in the image */
-        Imgproc.HoughCircles(redImage, circles, CV_HOUGH_GRADIENT, 1, redImage.rows()/8, param1, param2, minRadius, maxRadius);
+        Imgproc.HoughCircles(blueImage, circles, CV_HOUGH_GRADIENT, 1, blueImage.rows()/8, param1, param2, minRadius, maxRadius);
 
         /* get the number of circles detected */
         int numberOfCircles = (circles.rows() == 0) ? 0 : circles.cols();
