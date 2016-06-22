@@ -26,6 +26,7 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -38,6 +39,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
+import static org.opencv.imgproc.Imgproc.COLOR_BGR2HSV;
+import static org.opencv.imgproc.Imgproc.COLOR_RGB2HSV;
+import static org.opencv.imgproc.Imgproc.CV_HOUGH_GRADIENT;
 
 public class MainActivity extends Activity implements CvCameraViewListener{
     public final String ACTION_USB_PERMISSION = "fablabtaipei.dalamp.arduinousb.USB_PERMISSION";
@@ -123,17 +127,34 @@ public class MainActivity extends Activity implements CvCameraViewListener{
     }
 
     public Mat onCameraFrame(Mat inputFrame) {
-        Mat grayMat = new Mat(inputFrame.rows(), inputFrame.cols(),
+//        Mat grayMat = new Mat(inputFrame.rows(), inputFrame.cols(),
+//                CvType.CV_8UC1);
+
+        Mat hsvImage = new Mat(inputFrame.rows(), inputFrame.cols(),
                 CvType.CV_8UC1);
 
-        /* convert to grayscale */
-        int colorChannels = (inputFrame.channels() == 3) ? Imgproc.COLOR_BGR2GRAY
-                : ((inputFrame.channels() == 4) ? Imgproc.COLOR_BGRA2GRAY : 1);
+        Imgproc.cvtColor(inputFrame, hsvImage, COLOR_BGR2HSV);
 
-        Imgproc.cvtColor(inputFrame, grayMat, colorChannels);
+        Mat lowerBlueRange = new Mat(hsvImage.rows(), hsvImage.cols(),
+                CvType.CV_8UC1);
+        Mat upperBlueRange = new Mat(hsvImage.rows(), hsvImage.cols(),
+                CvType.CV_8UC1);
+        Core.inRange(hsvImage, new Scalar(0, 100, 100), new Scalar(10, 255, 255), lowerBlueRange);
+        Core.inRange(hsvImage, new Scalar(160, 100, 100), new Scalar(179, 255, 255), upperBlueRange);
+
+        Mat redImage = new Mat(hsvImage.rows(), hsvImage.cols(),
+                CvType.CV_8UC1);
+
+        Core.addWeighted(lowerBlueRange, 1.0, upperBlueRange, 1.0, 0.0, redImage);
+
+//        /* convert to grayscale */
+//        int colorChannels = (inputFrame.channels() == 3) ? Imgproc.COLOR_BGR2GRAY
+//                : ((inputFrame.channels() == 4) ? Imgproc.COLOR_BGRA2GRAY : 1);
+//
+//        Imgproc.cvtColor(inputFrame, grayMat, colorChannels);
 
         /* reduce the noise so we avoid false circle detection */
-        Imgproc.GaussianBlur(grayMat, grayMat, new Size(9, 9), 2, 2);
+        Imgproc.GaussianBlur(redImage, redImage, new Size(9, 9), 2, 2);
 
         // accumulator value
         double dp = 1.2d;
@@ -141,25 +162,23 @@ public class MainActivity extends Activity implements CvCameraViewListener{
         double minDist = 100;
 
         // min and max radii (set these values as you desire)
-        int minRadius = 30, maxRadius = 200;
+        int minRadius = 30, maxRadius = 250;
 
         // param1 = gradient value used to handle edge detection
         // param2 = Accumulator threshold value for the
         // cv2.CV_HOUGH_GRADIENT method.
-        // The smaller the threshold is, the more circles will be
+        // The smaller the threshold  is, the more circles will be
         // detected (including false circles).
         // The larger the threshold is, the more circles will
         // potentially be returned.
-        double param1 = 70, param2 = 72;
+        double param1 = 90, param2 = 25;
 
         /* create a Mat object to store the circles detected */
         Mat circles = new Mat(inputFrame.rows(),
                 inputFrame.cols(), CvType.CV_8UC1);
 
         /* find the circle in the image */
-        Imgproc.HoughCircles(grayMat, circles,
-                Imgproc.CV_HOUGH_GRADIENT, dp, minDist, param1,
-                param2, minRadius, maxRadius);
+        Imgproc.HoughCircles(redImage, circles, CV_HOUGH_GRADIENT, 1, redImage.rows()/8, param1, param2, minRadius, maxRadius);
 
         /* get the number of circles detected */
         int numberOfCircles = (circles.rows() == 0) ? 0 : circles.cols();
