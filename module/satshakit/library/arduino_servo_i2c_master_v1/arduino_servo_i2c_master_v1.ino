@@ -13,13 +13,13 @@
 
 String inputString = "";
 
-int indexServo;
+uint8_t indexServo;
 uint8_t angle;
 
 boolean stringComplete = false;  // whether the string is complete
 
 void setup() {
-  Serial.begin(115200);     // opens serial port, sets data rate to 9600 bps
+  Serial.begin(9600);     // opens serial port, sets data rate to 9600 bps
   Wire.begin();
   inputString.reserve(200);
 }

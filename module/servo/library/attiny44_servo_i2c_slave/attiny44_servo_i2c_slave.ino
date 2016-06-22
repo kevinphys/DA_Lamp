@@ -29,14 +29,14 @@ void setup()
 {
   TCCR0A = (1 << COM0B1) | (0 << COM0B0) | (0 << WGM01) | (1 << WGM00); // clear OC0B on compare match
   TCCR0B = (1 << CS02) | (0 << CS01) | (1 << CS00) | (1 << WGM02); // prescaler /8, phase and frequency correct PWM, OCRA TOP
-  
+
   TCNT0 = 0x00;
   OCR0A = 0xC3;
   OCR0B = 0x05;
-  
+
   PORTA |= (1 << PA7);
   DDRA |= (1 << PA7);
-  
+
   TinyWireS.begin(I2C_SLAVE_ADDRESS);
   TinyWireS.onReceive(receiveEvent);
 }
@@ -49,6 +49,6 @@ void loop()
    * It will call the function registered via TinyWireS.onReceive(); if there is data in the buffer on stop.
    */
   TinyWireS_stop_check();
-  
+
   OCR0B = pwm;
 }
