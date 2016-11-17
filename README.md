@@ -26,3 +26,6 @@ Including STL and laser-cut frame files
 
  * satshakit - translating the Serial commands from Android into I2C
  * servo - accepting I2C commands from satshakit and generating PWM signal to servo
+
+## License
+The MIT License
