@@ -10,20 +10,19 @@ DA Lamp has 5 degrees of freedom to move autonomously, and the master system is 
 
 The softwarea app is under development, including the framework of object recognition and machine learning.
 
-##Get started
+##Software
 
-###Software
-
-#### app
+### app
 
 For master control, it is currently based on Android system. It is under active development.
 
-###Hardware
+##Hardware
 
-#### design
+### design
 
 Including STL and laser-cut frame files
 
-#### module
-*satshakit - translating the Serial commands from Android into I2C
-*servo - accepting I2C commands from satshakit and generating PWM signal to servo
+### module
+
+ * satshakit - translating the Serial commands from Android into I2C
+ * servo - accepting I2C commands from satshakit and generating PWM signal to servo
